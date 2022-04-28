@@ -1,0 +1,25 @@
+{
+  "name": "giann/trunk",
+  "description": "A safe way to query data from a PHP array inspired by SwiftyJSON",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Giann\\Trunk\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Benoit Giannangeli",
+      "email": "benoit.giannangeli@hey.com"
+    }
+  ],
+  "require": {
+    "php": ">=8.1"
+  },
+  "minimum-stability": "stable",
+  "require-dev": {
+    "phpstan/phpstan": "1.6.3",
+    "phpunit/phpunit": "9.5.20"
+  }
+}

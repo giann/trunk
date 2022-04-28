@@ -1,0 +1,10 @@
+parameters:
+    level: 9
+    excludePaths:
+        - tests/**
+        - bin/**
+        - vendor/**
+
+    fileExtensions:
+        - php
+    tmpDir: /tmp
