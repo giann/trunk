@@ -14,9 +14,12 @@ use ReflectionProperty;
  */
 class Trunk implements ArrayAccess, Countable
 {
+    public $data = null;
+
     public function __construct(
-        public mixed $data = null,
+        $data = null
     ) {
+        $this->data = $data;
     }
 
     public function count(): int
@@ -28,7 +31,7 @@ class Trunk implements ArrayAccess, Countable
         return $this->data !== null ? 1 : 0;
     }
 
-    public function offsetExists(mixed $offset): bool
+    public function offsetExists($offset): bool
     {
         if (is_array($this->data) && (is_string($offset) || is_int($offset))) {
             return key_exists($offset, $this->data);
@@ -39,7 +42,7 @@ class Trunk implements ArrayAccess, Countable
         return false;
     }
 
-    public function offsetGet(mixed $offset): mixed
+    public function offsetGet($offset)
     {
         if (is_array($this->data) && (is_string($offset) || is_int($offset))) {
             return new Trunk(
@@ -57,7 +60,7 @@ class Trunk implements ArrayAccess, Countable
         return new Trunk();
     }
 
-    public function offsetSet(mixed $offset, mixed $value): void
+    public function offsetSet($offset, $value): void
     {
         if (is_array($this->data)) {
             $this->data[$offset] = $value;
@@ -72,7 +75,7 @@ class Trunk implements ArrayAccess, Countable
         throw new InvalidArgumentException('Value can\'t be indexed');
     }
 
-    public function offsetUnset(mixed $offset): void
+    public function offsetUnset($offset): void
     {
         if (is_array($this->data)) {
             unset($this->data[$offset]);
@@ -311,7 +314,7 @@ class Trunk implements ArrayAccess, Countable
         return $this->mapOfClass($type, $builder) ?? [];
     }
 
-    public function ofClass(string $type, ?callable $builder = null): mixed
+    public function ofClass(string $type, ?callable $builder = null)
     {
         if (is_object($this->data) && (get_class($this->data) === $type || is_subclass_of($this->data, $type))) {
             return $this->data;
@@ -334,13 +337,13 @@ class Trunk implements ArrayAccess, Countable
      * @param bool|string|integer|float|object|mixed[]|array<string, mixed> $default
      * @return bool|string|integer|float|object|mixed[]|array<string, mixed>
      */
-    public function ofClassValue(string $type, bool|string|int|float|object|array $default, ?callable $builder = null): bool|string|int|float|object|array
+    public function ofClassValue(string $type, $default, ?callable $builder = null)
     {
         /** @phpstan-ignore-next-line */
         return $this->ofClass($type, $builder) ?? $default;
     }
 
-    private static function is_associative(mixed $array): bool
+    private static function is_associative($array): bool
     {
         if (!is_array($array)) {
             return false;
