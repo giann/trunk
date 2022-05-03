@@ -42,7 +42,7 @@ class Trunk implements ArrayAccess, Countable
         return false;
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): Trunk
     {
         if (is_array($this->data) && (is_string($offset) || is_int($offset))) {
             return new Trunk(
@@ -171,7 +171,7 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @return Trunk[]|null
+     * @return mixed[]|null
      */
     public function listRaw(): ?array
     {
@@ -181,7 +181,7 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @return Trunk[]
+     * @return mixed[]
      */
     public function listRawValue(): array
     {
@@ -191,7 +191,7 @@ class Trunk implements ArrayAccess, Countable
     /**
      * @param string $type
      * @param callable|null $builder
-     * @return mixed[]|null
+     * @return object[]|null
      */
     public function listOfClass(string $type, ?callable $builder = null): ?array
     {
@@ -226,7 +226,7 @@ class Trunk implements ArrayAccess, Countable
     /**
      * @param string $type
      * @param callable|null $builder
-     * @return mixed[]
+     * @return object[]
      */
     public function listOfClassValue(string $type, ?callable $builder = null): array
     {
@@ -234,7 +234,7 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @return Trunk[]|null
+     * @return array<string,Trunk>|null
      */
     public function map(): ?array
     {
@@ -244,7 +244,7 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @return Trunk[]
+     * @return array<string,Trunk>
      */
     public function mapValue(): array
     {
@@ -252,7 +252,7 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @return Trunk[]|null
+     * @return array<string,mixed>|null
      */
     public function mapRaw(): ?array
     {
@@ -262,7 +262,7 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @return Trunk[]
+     * @return array<string,mixed>
      */
     public function mapRawValue(): array
     {
@@ -272,7 +272,7 @@ class Trunk implements ArrayAccess, Countable
     /**
      * @param string $type
      * @param callable|null $builder
-     * @return mixed[]|null
+     * @return array<string,object>|null
      */
     public function mapOfClass(string $type, ?callable $builder = null): ?array
     {
@@ -307,7 +307,7 @@ class Trunk implements ArrayAccess, Countable
     /**
      * @param string $type
      * @param callable|null $builder
-     * @return mixed[]
+     * @return array<string,object>
      */
     public function mapOfClassValue(string $type, ?callable $builder = null): array
     {
