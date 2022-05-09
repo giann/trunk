@@ -42,6 +42,7 @@ class Trunk implements ArrayAccess, Countable
         return false;
     }
 
+    /** @return Trunk */
     public function offsetGet($offset): Trunk
     {
         if (is_array($this->data) && (is_string($offset) || is_int($offset))) {
@@ -123,6 +124,28 @@ class Trunk implements ArrayAccess, Countable
             return (int)$this->data;
         } else if (is_string($this->data)) {
             return is_numeric($this->data) ? (int)$this->data : 0;
+        }
+
+        return 0;
+    }
+
+    public function bool(): ?bool
+    {
+        if (is_bool($this->data)) {
+            return $this->data;
+        }
+
+        return null;
+    }
+
+    public function boolValue(): bool
+    {
+        if (is_bool($this->data)) {
+            return $this->data;
+        } else if (is_int($this->data) || is_float($this->data)) {
+            return $this->data == 1;
+        } else if (is_string($this->data)) {
+            return in_array(strtolower($this->data), ['true', 'y', 't', 'yes', '1']);
         }
 
         return 0;
