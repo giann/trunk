@@ -279,7 +279,7 @@ class Trunk implements ArrayAccess, Countable
      */
     public function mapRaw(): ?array
     {
-        return is_array($this->data) && !self::is_associative($this->data)
+        return is_array($this->data) && self::is_associative($this->data)
             ? $this->data
             : null;
     }
