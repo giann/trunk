@@ -176,6 +176,42 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
+     * @return array<int|string,Trunk>|null
+     */
+    public function array(): ?array
+    {
+        return is_array($this->data)
+            ? array_map(fn ($el) => new Trunk($el), $this->data)
+            : null;
+    }
+
+    /**
+     * @return array<int|string,Trunk>
+     */
+    public function arrayValue(): array
+    {
+        return $this->array() ?? [];
+    }
+
+    /**
+     * @return mixed[]|null
+     */
+    public function arrayRaw(): ?array
+    {
+        return is_array($this->data)
+            ? $this->data
+            : null;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function arrayRawValue(): array
+    {
+        return $this->arrayRaw() ?? [];
+    }
+
+    /**
      * @return Trunk[]|null
      */
     public function list(): ?array
