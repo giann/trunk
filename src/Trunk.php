@@ -8,6 +8,7 @@ use ArrayAccess;
 use Countable;
 use InvalidArgumentException;
 use ReflectionProperty;
+use RuntimeException;
 
 /**
  * @implements ArrayAccess<string|int, mixed>
@@ -63,17 +64,7 @@ class Trunk implements ArrayAccess, Countable
 
     public function offsetSet($offset, $value): void
     {
-        if (is_array($this->data)) {
-            $this->data[$offset] = $value;
-        } else if (is_object($this->data) && is_string($offset) && property_exists($this->data, $offset)) {
-            $rp = new ReflectionProperty($this->data, $offset);
-
-            if ($rp->isPublic()) {
-                $this->data->{$offset} = $value;
-            }
-        }
-
-        throw new InvalidArgumentException('Value can\'t be indexed');
+        throw new RuntimeException('A Trunk is immutable');
     }
 
     public function offsetUnset($offset): void
@@ -173,6 +164,42 @@ class Trunk implements ArrayAccess, Countable
         }
 
         return 0;
+    }
+
+    /**
+     * @return array<int|string,Trunk>|null
+     */
+    public function array(): ?array
+    {
+        return is_array($this->data)
+            ? array_map(fn ($el) => new Trunk($el), $this->data)
+            : null;
+    }
+
+    /**
+     * @return array<int|string,Trunk>
+     */
+    public function arrayValue(): array
+    {
+        return $this->array() ?? [];
+    }
+
+    /**
+     * @return mixed[]|null
+     */
+    public function arrayRaw(): ?array
+    {
+        return is_array($this->data)
+            ? $this->data
+            : null;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function arrayRawValue(): array
+    {
+        return $this->arrayRaw() ?? [];
     }
 
     /**
