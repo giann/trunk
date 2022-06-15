@@ -15,8 +15,12 @@ use RuntimeException;
  */
 class Trunk implements ArrayAccess, Countable
 {
+    /** @var mixed */
     public $data = null;
 
+    /**
+     * @param mixed $data
+     */
     public function __construct(
         $data = null
     ) {
@@ -32,6 +36,9 @@ class Trunk implements ArrayAccess, Countable
         return $this->data !== null ? 1 : 0;
     }
 
+    /**
+     * @param mixed $offset
+     */
     public function offsetExists($offset): bool
     {
         if (is_array($this->data) && (is_string($offset) || is_int($offset))) {
@@ -43,7 +50,10 @@ class Trunk implements ArrayAccess, Countable
         return false;
     }
 
-    /** @return Trunk */
+    /** 
+     * @param mixed $offset
+     * @return Trunk 
+     */
     public function offsetGet($offset): Trunk
     {
         if (is_array($this->data) && (is_string($offset) || is_int($offset))) {
@@ -139,7 +149,7 @@ class Trunk implements ArrayAccess, Countable
             return in_array(strtolower($this->data), ['true', 'y', 't', 'yes', '1']);
         }
 
-        return 0;
+        return false;
     }
 
     public function float(): ?float
@@ -239,9 +249,10 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @param string $type
-     * @param callable|null $builder
-     * @return object[]|null
+     * @template T of object
+     * @param class-string<T> $type
+     * @param callable(mixed): ?T|null $builder
+     * @return T[]|null
      */
     public function listOfClass(string $type, ?callable $builder = null): ?array
     {
@@ -249,14 +260,16 @@ class Trunk implements ArrayAccess, Countable
             try {
                 return array_map(
                     function ($el) use ($type, $builder) {
-                        if (is_object($el) && (get_class($el) === $type || is_subclass_of($el, $type))) {
+                        if (is_object($el) && (get_class($el) === $type || is_subclass_of($el, (string)$type))) {
+                            /** @var T */
                             return $el;
                         }
 
                         if ($builder !== null) {
                             $built = $builder($el);
 
-                            if ($built !== null && (get_class($built) === $type || is_subclass_of($built, $type))) {
+                            /** @phpstan-ignore-next-line */
+                            if ($built !== null && (get_class($built) === $type || is_subclass_of($built, (string)$type))) {
                                 return $built;
                             }
                         }
@@ -274,13 +287,14 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @param string $type
-     * @param callable|null $builder
-     * @return object[]
+     * @template T of object
+     * @param class-string<T> $type
+     * @param callable(mixed): ?T|null $builder
+     * @return T[]
      */
     public function listOfClassValue(string $type, ?callable $builder = null): array
     {
-        return $this->listOfClass($type, $builder) ?? [];
+        return $this->listOfClass((string)$type, $builder) ?? [];
     }
 
     /**
@@ -320,9 +334,10 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @param string $type
-     * @param callable|null $builder
-     * @return array<string,object>|null
+     * @template T of object
+     * @param class-string<T> $type
+     * @param callable(mixed): ?T|null $builder
+     * @return array<string,T>|null
      */
     public function mapOfClass(string $type, ?callable $builder = null): ?array
     {
@@ -330,14 +345,17 @@ class Trunk implements ArrayAccess, Countable
             try {
                 return array_map(
                     function ($el) use ($type, $builder) {
-                        if (is_object($el) && (get_class($el) === $type || is_subclass_of($el, $type))) {
+                        if (is_object($el) && (get_class($el) === $type || is_subclass_of($el, (string)$type))) {
+                            /** @var T */
                             return $el;
                         }
 
                         if ($builder !== null) {
                             $built = $builder($el);
 
-                            if ($built !== null && (get_class($built) === $type || is_subclass_of($built, $type))) {
+                            /** @phpstan-ignore-next-line */
+                            if ($built !== null && (get_class($built) === $type || is_subclass_of($built, (string)$type))) {
+                                /** @var T */
                                 return $built;
                             }
                         }
@@ -355,25 +373,34 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @param string $type
-     * @param callable|null $builder
-     * @return array<string,object>
+     * @template T of object
+     * @param class-string<T> $type
+     * @param callable(mixed): ?T|null $builder
+     * @return array<string,T>
      */
     public function mapOfClassValue(string $type, ?callable $builder = null): array
     {
-        return $this->mapOfClass($type, $builder) ?? [];
+        return $this->mapOfClass((string)$type, $builder) ?? [];
     }
 
-    public function ofClass(string $type, ?callable $builder = null)
+    /**
+     * @template T of object
+     * @param class-string<T> $type
+     * @param callable(mixed): ?T|null $builder
+     * @return ?T
+     */
+    public function ofClass(string $type, ?callable $builder = null): ?object
     {
-        if (is_object($this->data) && (get_class($this->data) === $type || is_subclass_of($this->data, $type))) {
+        if (is_object($this->data) && (get_class($this->data) === $type || is_subclass_of($this->data, (string)$type))) {
+            /** @var T */
             return $this->data;
         }
 
         if ($builder !== null) {
             $built = $builder($this->data);
 
-            if ($built !== null && (get_class($built) === $type || is_subclass_of($built, $type))) {
+            /** @phpstan-ignore-next-line */
+            if ($built !== null && (get_class($built) === $type || is_subclass_of($built, (string)$type))) {
                 return $built;
             }
         }
@@ -382,18 +409,22 @@ class Trunk implements ArrayAccess, Countable
     }
 
     /**
-     * @param string $type
+     * @template T of object
+     * @param class-string<T> $type
      * @param callable|null $builder
-     * @param bool|string|integer|float|object|mixed[]|array<string, mixed> $default
-     * @return bool|string|integer|float|object|mixed[]|array<string, mixed>
+     * @param T $default
+     * @return T
      */
-    public function ofClassValue(string $type, $default, ?callable $builder = null)
+    public function ofClassValue(string $type, object $default, ?callable $builder = null): object
     {
-        /** @phpstan-ignore-next-line */
-        return $this->ofClass($type, $builder) ?? $default;
+        return $this->ofClass((string)$type, $builder) ?? $default;
     }
 
-    private static function is_associative($array): bool
+    /**
+     * @param array<int|string,mixed> $array
+     * @return boolean
+     */
+    private static function is_associative(array $array): bool
     {
         if (!is_array($array)) {
             return false;

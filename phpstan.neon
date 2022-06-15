@@ -1,10 +1,13 @@
 parameters:
     level: 9
+    phpVersion: 70400
     excludePaths:
         - tests/**
         - bin/**
         - vendor/**
-
+    paths:
+        - src
+        - tests
     fileExtensions:
         - php
     tmpDir: /tmp
