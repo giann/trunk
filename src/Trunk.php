@@ -6,9 +6,30 @@ namespace Giann\Trunk;
 
 use ArrayAccess;
 use Countable;
+use Exception;
 use InvalidArgumentException;
 use ReflectionProperty;
 use RuntimeException;
+
+abstract class TrunkException extends Exception
+{
+}
+
+class UnsupportedTypeTrunkException extends TrunkException
+{
+}
+
+class IndexOutOfBoundsTypeTrunkException extends TrunkException
+{
+}
+
+class WrongTypeTrunkException extends TrunkException
+{
+}
+
+class DoesNotExistTrunkException extends TrunkException
+{
+}
 
 /**
  * @implements ArrayAccess<string|int, mixed>
@@ -17,6 +38,9 @@ class Trunk implements ArrayAccess, Countable
 {
     /** @var mixed */
     public $data = null;
+
+    /** @var TrunkException|null */
+    public $exception = null;
 
     /**
      * @param mixed $data
@@ -41,6 +65,10 @@ class Trunk implements ArrayAccess, Countable
      */
     public function offsetExists($offset): bool
     {
+        if ($this->exception != null) {
+            return false;
+        }
+
         if (is_array($this->data) && (is_string($offset) || is_int($offset))) {
             return key_exists($offset, $this->data);
         } else if (is_object($this->data) && is_string($offset)) {
@@ -57,6 +85,16 @@ class Trunk implements ArrayAccess, Countable
     public function offsetGet($offset): Trunk
     {
         if (is_array($this->data) && (is_string($offset) || is_int($offset))) {
+            $associative = self::is_associative($this->data);
+
+            if (!$associative && !is_int($offset)) {
+                $this->exception = $this->exception ?? new WrongTypeTrunkException();
+            } else if (!$associative && ($offset < 0 || $offset >= count($this->data))) {
+                $this->exception = $this->exception ?? new IndexOutOfBoundsTypeTrunkException();
+            } else if ($associative && !isset($this->data[$offset])) {
+                $this->exception = $this->exception ?? new DoesNotExistTrunkException();
+            }
+
             return new Trunk(
                 key_exists($offset, $this->data) ? $this->data[$offset] : null
             );
@@ -68,6 +106,8 @@ class Trunk implements ArrayAccess, Countable
                 $rp->isPublic() ? $this->data->{$offset} : null
             );
         }
+
+        $this->exception = $this->exception ?? new WrongTypeTrunkException();
 
         return new Trunk();
     }
@@ -426,6 +466,10 @@ class Trunk implements ArrayAccess, Countable
      */
     private static function is_associative(array $array): bool
     {
+        if (!function_exists('array_is_list')) {
+            return !array_is_list($array);
+        }
+
         if (!is_array($array)) {
             return false;
         }
