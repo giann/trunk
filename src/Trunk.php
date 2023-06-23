@@ -8,6 +8,7 @@ use ArrayAccess;
 use Countable;
 use Exception;
 use InvalidArgumentException;
+use Iterator;
 use ReflectionProperty;
 use RuntimeException;
 
@@ -33,8 +34,9 @@ class DoesNotExistTrunkException extends TrunkException
 
 /**
  * @implements ArrayAccess<string|int, mixed>
+ * @implements Iterator<string|int, mixed>
  */
-class Trunk implements ArrayAccess, Countable
+class Trunk implements ArrayAccess, Countable, Iterator
 {
     /** @var mixed */
     public $data = null;
@@ -124,6 +126,91 @@ class Trunk implements ArrayAccess, Countable
         }
 
         throw new InvalidArgumentException('Value can\'t be unset');
+    }
+
+    /**
+     * @return Trunk|false
+     */
+    public function current(): mixed
+    {
+        if (!is_array($this->data) && !is_object($this->data)) {
+            $this->exception = $this->exception ?? new WrongTypeTrunkException();
+            return false;
+        }
+
+        if (is_array($this->data)) {
+            return new Trunk(current($this->data));
+        }
+
+        assert(is_object($this->data));
+        // Create an internal array of properties to walk through?
+        return false;
+    }
+
+    /**
+     * @return Trunk|false
+     */
+    public function key(): mixed
+    {
+        if (!is_array($this->data) && !is_object($this->data)) {
+            $this->exception = $this->exception ?? new WrongTypeTrunkException();
+            return false;
+        }
+
+        if (is_array($this->data)) {
+            return new Trunk(key($this->data));
+        }
+
+        assert(is_object($this->data));
+        // Create an internal array of properties to walk through?
+        return false;
+    }
+
+    public function next(): void
+    {
+        if (!is_array($this->data) && !is_object($this->data)) {
+            $this->exception = $this->exception ?? new WrongTypeTrunkException();
+            return;
+        }
+
+        if (is_array($this->data)) {
+            next($this->data);
+
+            return;
+        }
+
+        assert(is_object($this->data));
+    }
+
+    public function rewind(): void
+    {
+        if (!is_array($this->data) && !is_object($this->data)) {
+            $this->exception = $this->exception ?? new WrongTypeTrunkException();
+            return;
+        }
+
+        if (is_array($this->data)) {
+            reset($this->data);
+
+            return;
+        }
+
+        assert(is_object($this->data));
+    }
+
+    public function valid(): bool
+    {
+        if (!is_array($this->data) && !is_object($this->data)) {
+            $this->exception = $this->exception ?? new WrongTypeTrunkException();
+            return false;
+        }
+
+        if (is_array($this->data)) {
+            return isset($this->data[key($this->data)]);
+        }
+
+        assert(is_object($this->data));
+        return false;
     }
 
     public function string(): ?string

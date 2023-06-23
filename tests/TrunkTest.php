@@ -80,4 +80,19 @@ final class TrunkTest extends TestCase
                 )['joe'] instanceof Person
         );
     }
+
+    public function testIterator(): void
+    {
+        $data = [
+            1, 2, 3, 4
+        ];
+
+        $trunk = new Trunk($data);
+
+        foreach ($trunk as $key => $value) {
+            $this->assertTrue($key instanceof Trunk);
+            $this->assertTrue($value instanceof Trunk);
+            $this->assertTrue($value->int() == $data[$key->intValue()]);
+        };
+    }
 }
