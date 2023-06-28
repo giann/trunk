@@ -44,6 +44,9 @@ class Trunk implements ArrayAccess, Countable, Iterator
     /** @var TrunkException|null */
     public $exception = null;
 
+    /** @var array<string,mixed>|null */
+    protected $object_vars = null;
+
     /**
      * @param mixed $data
      */
@@ -143,27 +146,29 @@ class Trunk implements ArrayAccess, Countable, Iterator
         }
 
         assert(is_object($this->data));
-        // Create an internal array of properties to walk through?
-        return false;
+
+        $this->object_vars = $this->object_vars ?? get_object_vars($this->data);
+        return new Trunk(current($this->object_vars));
     }
 
     /**
-     * @return Trunk|false
+     * @return int|string|null
      */
     public function key(): mixed
     {
         if (!is_array($this->data) && !is_object($this->data)) {
             $this->exception = $this->exception ?? new WrongTypeTrunkException();
-            return false;
+            return null;
         }
 
         if (is_array($this->data)) {
-            return new Trunk(key($this->data));
+            return key($this->data);
         }
 
         assert(is_object($this->data));
-        // Create an internal array of properties to walk through?
-        return false;
+
+        $this->object_vars = $this->object_vars ?? get_object_vars($this->data);
+        return key($this->object_vars);
     }
 
     public function next(): void
@@ -180,6 +185,9 @@ class Trunk implements ArrayAccess, Countable, Iterator
         }
 
         assert(is_object($this->data));
+
+        $this->object_vars = $this->object_vars ?? get_object_vars($this->data);
+        next($this->object_vars);
     }
 
     public function rewind(): void
@@ -196,6 +204,9 @@ class Trunk implements ArrayAccess, Countable, Iterator
         }
 
         assert(is_object($this->data));
+
+        $this->object_vars = $this->object_vars ?? get_object_vars($this->data);
+        reset($this->object_vars);
     }
 
     public function valid(): bool
@@ -210,7 +221,9 @@ class Trunk implements ArrayAccess, Countable, Iterator
         }
 
         assert(is_object($this->data));
-        return false;
+
+        $this->object_vars = $this->object_vars ?? get_object_vars($this->data);
+        return isset($this->object_vars[key($this->object_vars)]);
     }
 
     public function string(): ?string

@@ -8,10 +8,12 @@ use PHPUnit\Framework\TestCase;
 final class Person
 {
     public string $name;
+    public int $age;
 
-    public function __construct(string $name)
+    public function __construct(string $name, int $age = 30)
     {
         $this->name = $name;
+        $this->age = $age;
     }
 }
 
@@ -24,6 +26,10 @@ final class TrunkTest extends TestCase
             'anint' => 12,
             'afloat' => 12.12,
             'alist' => [1, 2, 3, 'hello', 'world'],
+            'listofints' => [1, 2, 3, 4],
+            'listoffloats' => [1.2, 2.3, 4.5],
+            'listofbools' => [true, false, true],
+            'listofstrings' => ['one', 'two', 'three'],
             'amap' => [
                 'hello' => 'world',
                 'yo' => 10
@@ -79,6 +85,15 @@ final class TrunkTest extends TestCase
                     fn ($el) => new Person($el)
                 )['joe'] instanceof Person
         );
+
+        $this->assertEquals(count($data['listofints']), count($trunk['listofints']->listOfIntValue()));
+        $this->assertIsInt($trunk['listofints']->listOfIntValue()[0]);
+        $this->assertEquals(count($data['listoffloats']), count($trunk['listoffloats']->listOfFloatValue()));
+        $this->assertIsFloat($trunk['listoffloats']->listOfFloatValue()[0]);
+        $this->assertEquals(count($data['listofbools']), count($trunk['listofbools']->listOfBoolValue()));
+        $this->assertIsBool($trunk['listofbools']->listOfBoolValue()[0]);
+        $this->assertEquals(count($data['listofstrings']), count($trunk['listofstrings']->listOfStringValue()));
+        $this->assertIsString($trunk['listofstrings']->listOfStringValue()[0]);
     }
 
     public function testIterator(): void
@@ -86,13 +101,22 @@ final class TrunkTest extends TestCase
         $data = [
             1, 2, 3, 4
         ];
-
         $trunk = new Trunk($data);
-
         foreach ($trunk as $key => $value) {
-            $this->assertTrue($key instanceof Trunk);
             $this->assertTrue($value instanceof Trunk);
-            $this->assertTrue($value->int() == $data[$key->intValue()]);
+            $this->assertEquals($value->int(), $data[$key]);
         };
+
+        $data = new Person('joe', 45);
+        $trunk = new Trunk($data);
+        $result = [];
+        foreach ($trunk as $key => $value) {
+            $this->assertTrue($value instanceof Trunk);
+
+            $result[$key] = $value;
+        };
+
+        $this->assertEquals($result['name']->string(), 'joe');
+        $this->assertEquals($result['age']->int(), 45);
     }
 }
