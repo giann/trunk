@@ -222,15 +222,24 @@ class Trunk implements ArrayAccess, Countable, Iterator
         return null;
     }
 
-    public function stringValue(): string
+    /**
+     * @param mixed $element
+     * @return string
+     */
+    private static function stringCast($element): string
     {
-        if (is_string($this->data)) {
-            return $this->data;
-        } else if (is_bool($this->data) || is_numeric($this->data)) {
-            return '' . $this->data;
+        if (is_string($element)) {
+            return $element;
+        } else if (is_bool($element) || is_numeric($element)) {
+            return '' . $element;
         }
 
         return '';
+    }
+
+    public function stringValue(): string
+    {
+        return self::stringCast($this->data);
     }
 
     public function int(): ?int
@@ -242,19 +251,28 @@ class Trunk implements ArrayAccess, Countable, Iterator
         return null;
     }
 
-    public function intValue(): int
+    /**
+     * @param mixed $element
+     * @return int
+     */
+    private static function intCast($element): int
     {
-        if (is_int($this->data)) {
-            return $this->data;
-        } else if (is_bool($this->data)) {
-            return $this->data ? 1 : 0;
-        } else if (is_float($this->data)) {
-            return (int)$this->data;
-        } else if (is_string($this->data)) {
-            return is_numeric($this->data) ? (int)$this->data : 0;
+        if (is_int($element)) {
+            return $element;
+        } else if (is_bool($element)) {
+            return $element ? 1 : 0;
+        } else if (is_float($element)) {
+            return (int)$element;
+        } else if (is_string($element)) {
+            return is_numeric($element) ? (int)$element : 0;
         }
 
         return 0;
+    }
+
+    public function intValue(): int
+    {
+        return self::intCast($this->data);
     }
 
     public function bool(): ?bool
@@ -266,17 +284,26 @@ class Trunk implements ArrayAccess, Countable, Iterator
         return null;
     }
 
-    public function boolValue(): bool
+    /**
+     * @param mixed $element
+     * @return boolean
+     */
+    private static function boolCast($element): bool
     {
-        if (is_bool($this->data)) {
-            return $this->data;
-        } else if (is_int($this->data) || is_float($this->data)) {
-            return $this->data == 1;
-        } else if (is_string($this->data)) {
-            return in_array(strtolower($this->data), ['true', 'y', 't', 'yes', '1']);
+        if (is_bool($element)) {
+            return $element;
+        } else if (is_int($element) || is_float($element)) {
+            return $element == 1;
+        } else if (is_string($element)) {
+            return in_array(strtolower($element), ['true', 'y', 't', 'yes', '1']);
         }
 
         return false;
+    }
+
+    public function boolValue(): bool
+    {
+        return self::boolCast($this->data);
     }
 
     public function float(): ?float
@@ -288,19 +315,28 @@ class Trunk implements ArrayAccess, Countable, Iterator
         return null;
     }
 
-    public function floatValue(): float
+    /**
+     * @param mixed $element
+     * @return float
+     */
+    private static function floatCast($element): float
     {
-        if (is_float($this->data)) {
-            return $this->data;
-        } else if (is_bool($this->data)) {
-            return $this->data ? 1 : 0;
-        } else if (is_int($this->data)) {
-            return (float)$this->data;
-        } else if (is_string($this->data)) {
-            return is_numeric($this->data) ? (float)$this->data : 0;
+        if (is_float($element)) {
+            return $element;
+        } else if (is_bool($element)) {
+            return $element ? 1 : 0;
+        } else if (is_int($element)) {
+            return (float)$element;
+        } else if (is_string($element)) {
+            return is_numeric($element) ? (float)$element : 0;
         }
 
         return 0;
+    }
+
+    public function floatValue(): float
+    {
+        return self::floatCast($this->data);
     }
 
     /**
@@ -373,6 +409,110 @@ class Trunk implements ArrayAccess, Countable, Iterator
     public function listRawValue(): array
     {
         return $this->listRaw() ?? [];
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function listOfString(): ?array
+    {
+        if (
+            is_array($this->data)
+            && !self::is_associative($this->data)
+            && count(array_filter($this->data, fn ($el) => is_string($el))) == count($this->data)
+        ) {
+            return $this->data;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function listOfStringValue(): array
+    {
+        $raw = is_array($this->data) && !self::is_associative($this->data) ? $this->data : [];
+
+        return array_map(fn ($el) => self::stringCast($el), $raw);
+    }
+
+    /**
+     * @return int[]|null
+     */
+    public function listOfInt(): ?array
+    {
+        if (
+            is_array($this->data)
+            && !self::is_associative($this->data)
+            && count(array_filter($this->data, fn ($el) => is_int($el))) == count($this->data)
+        ) {
+            return $this->data;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function listOfIntValue(): array
+    {
+        $raw = is_array($this->data) && !self::is_associative($this->data) ? $this->data : [];
+
+        return array_map(fn ($el) => self::intCast($el), $raw);
+    }
+
+    /**
+     * @return float[]|null
+     */
+    public function listOfFloat(): ?array
+    {
+        if (
+            is_array($this->data)
+            && !self::is_associative($this->data)
+            && count(array_filter($this->data, fn ($el) => is_float($el))) == count($this->data)
+        ) {
+            return $this->data;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return float[]
+     */
+    public function listOfFloatValue(): array
+    {
+        $raw = is_array($this->data) && !self::is_associative($this->data) ? $this->data : [];
+
+        return array_map(fn ($el) => self::floatCast($el), $raw);
+    }
+
+    /**
+     * @return bool[]|null
+     */
+    public function listOfBool(): ?array
+    {
+        if (
+            is_array($this->data)
+            && !self::is_associative($this->data)
+            && count(array_filter($this->data, fn ($el) => is_bool($el))) == count($this->data)
+        ) {
+            return $this->data;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return bool[]
+     */
+    public function listOfBoolValue(): array
+    {
+        $raw = is_array($this->data) && !self::is_associative($this->data) ? $this->data : [];
+
+        return array_map(fn ($el) => self::boolCast($el), $raw);
     }
 
     /**
