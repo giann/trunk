@@ -70,10 +70,6 @@ class Trunk implements ArrayAccess, Countable, Iterator
      */
     public function offsetExists($offset): bool
     {
-        if ($this->exception != null) {
-            return false;
-        }
-
         if (is_array($this->data) && (is_string($offset) || is_int($offset))) {
             return key_exists($offset, $this->data);
         } else if (is_object($this->data) && is_string($offset)) {

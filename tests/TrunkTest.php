@@ -94,6 +94,7 @@ final class TrunkTest extends TestCase
         $this->assertIsBool($trunk['listofbools']->listOfBoolValue()[0]);
         $this->assertEquals(count($data['listofstrings']), count($trunk['listofstrings']->listOfStringValue()));
         $this->assertIsString($trunk['listofstrings']->listOfStringValue()[0]);
+        $this->assertFalse(isset($trunk['hello']));
     }
 
     public function testIterator(): void
