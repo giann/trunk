@@ -578,9 +578,15 @@ class Trunk implements ArrayAccess, Countable, Iterator
      */
     public function map(): ?array
     {
-        return is_array($this->data) && self::is_associative($this->data)
-            ? array_map(fn ($value) => new Trunk($value), $this->data)
-            : null;
+        if (is_array($this->data) && self::is_associative($this->data)) {
+            return array_map(fn ($value) => new Trunk($value), $this->data);
+        }
+
+        if (is_object($this->data)) {
+            return array_map(fn ($value) => new Trunk($value), get_object_vars($this->data));
+        }
+        
+        return null;
     }
 
     /**
@@ -596,9 +602,15 @@ class Trunk implements ArrayAccess, Countable, Iterator
      */
     public function mapRaw(): ?array
     {
-        return is_array($this->data) && self::is_associative($this->data)
-            ? $this->data
-            : null;
+        if (is_array($this->data) && self::is_associative($this->data)) {
+            return $this->data;
+        }
+
+        if (is_object($this->data)) {
+            return get_object_vars($this->data);
+        }
+        
+        return null;
     }
 
     /**
